@@ -1,7 +1,7 @@
 import { Pagination, Table } from "react-bootstrap";
 import { Link, useLocation } from "react-router-dom";
 
-import React from "react";
+import React, { useState } from "react";
 import useFetch from "react-fetch-hook";
 import { LinkContainer } from "react-router-bootstrap";
 import { WorkflowInstance, WorkflowInstanceState } from "./Components";
@@ -22,9 +22,11 @@ function Home() {
 
   const { isLoading, data } = useFetch<WorkflowInstanceRef[]>(
     document.location.pathname +
-      `api/?count=${count}` +
-      (afterId ? `&after=${afterId}` : "")
+    `api/?count=${count}` +
+    (afterId ? `&after=${afterId}` : "")
   );
+
+  const [instanceIdFilterValue, setInstanceIdFilterValue] = useState("")
 
   return (
     <div className="App">
@@ -39,7 +41,17 @@ function Home() {
           <Table striped bordered hover size="sm">
             <thead>
               <tr>
-                <th>Instance ID</th>
+                <th>
+                  Instance ID<br />
+                  <input type="text" defaultValue=""
+                    value={instanceIdFilterValue}
+                    onChange={
+                      (e) => {
+                        setInstanceIdFilterValue(e.target.value)
+                      }
+                    }
+                  ></input>
+                </th>
                 <th>Parent Instance ID</th>
                 <th>Created At</th>
                 <th>Completed At</th>
@@ -47,35 +59,40 @@ function Home() {
               </tr>
             </thead>
             <tbody>
-              {(data || []).map((i) => (
-                <tr key={i.instance.instance_id}>
-                  <td>
-                    <Link
-                      to={`/${i.instance.instance_id}/${i.instance.execution_id}`}
-                    >
-                      <WorkflowInstance instance={i.instance} />
-                    </Link>
-                  </td>
-                  <td>
-                    {i.instance.parent && (
+              {(data || []).
+                filter(e => (
+                  e.instance.instance_id.
+                    includes(instanceIdFilterValue)
+                )).
+                map((i) => (
+                  <tr key={i.instance.instance_id}>
+                    <td>
                       <Link
-                        to={`/${i.instance.parent.instance_id}/${i.instance.parent.execution_id}`}
+                        to={`/${i.instance.instance_id}/${i.instance.execution_id}`}
                       >
-                        <WorkflowInstance instance={i.instance.parent} />
+                        <WorkflowInstance instance={i.instance} />
                       </Link>
-                    )}
-                  </td>
-                  <td>
-                    <code>{i.created_at}</code>
-                  </td>
-                  <td>
-                    <code>{i.completed_at}</code>
-                  </td>
-                  <td style={{ textAlign: "center" }}>
-                    <WorkflowInstanceState state={i.state} />
-                  </td>
-                </tr>
-              ))}
+                    </td>
+                    <td>
+                      {i.instance.parent && (
+                        <Link
+                          to={`/${i.instance.parent.instance_id}/${i.instance.parent.execution_id}`}
+                        >
+                          <WorkflowInstance instance={i.instance.parent} />
+                        </Link>
+                      )}
+                    </td>
+                    <td>
+                      <code>{i.created_at}</code>
+                    </td>
+                    <td>
+                      <code>{i.completed_at}</code>
+                    </td>
+                    <td style={{ textAlign: "center" }}>
+                      <WorkflowInstanceState state={i.state} />
+                    </td>
+                  </tr>
+                ))}
             </tbody>
           </Table>
 
@@ -86,13 +103,11 @@ function Home() {
               </LinkContainer>
               <Pagination.Item active>{page}</Pagination.Item>
               <LinkContainer
-                to={`/?after=${
-                  (data &&
-                    `${data[data.length - 1].instance.instance_id}:${
-                      data[data.length - 1].instance.execution_id
-                    }`) ||
+                to={`/?after=${(data &&
+                  `${data[data.length - 1].instance.instance_id}:${data[data.length - 1].instance.execution_id
+                  }`) ||
                   ""
-                }&page=${page + 1}`}
+                  }&page=${page + 1}`}
               >
                 <Pagination.Next disabled={!data || data.length < count} />
               </LinkContainer>
