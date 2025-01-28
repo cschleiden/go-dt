@@ -40,16 +40,25 @@ func executeActivity[TResult any](ctx Context, options ActivityOptions, attempt 
 		return f
 	}
 
-	// Check return type
-	if err := a.ReturnTypeMatch[TResult](activity); err != nil {
-		f.Set(*new(TResult), err)
-		return f
-	}
+	var name string
 
-	// Check arguments
-	if err := a.ParamsMatch(activity, args...); err != nil {
-		f.Set(*new(TResult), err)
-		return f
+	// Check if activity is referred by name
+	if activityName, ok := activity.(string); ok {
+		name = activityName
+	} else {
+		// Check return type
+		if err := a.ReturnTypeMatch[TResult](activity); err != nil {
+			f.Set(*new(TResult), err)
+			return f
+		}
+
+		// Check arguments
+		if err := a.ParamsMatch(activity, args...); err != nil {
+			f.Set(*new(TResult), err)
+			return f
+		}
+
+		name = fn.Name(activity)
 	}
 
 	cv := contextvalue.Converter(ctx)
@@ -61,8 +70,6 @@ func executeActivity[TResult any](ctx Context, options ActivityOptions, attempt 
 
 	wfState := workflowstate.WorkflowState(ctx)
 	scheduleEventID := wfState.GetNextScheduleEventID()
-
-	name := fn.Name(activity)
 
 	// Capture context
 	propagators := propagators(ctx)

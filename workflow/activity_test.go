@@ -62,3 +62,23 @@ func Test_executeActivity_ParamMismatch(t *testing.T) {
 	c.Execute()
 	require.True(t, c.Finished())
 }
+
+func Test_executeActivity_NameAsString(t *testing.T) {
+	ctx := sync.Background()
+	ctx = contextvalue.WithConverter(ctx, converter.DefaultConverter)
+	ctx = workflowstate.WithWorkflowState(
+		ctx,
+		workflowstate.NewWorkflowState(
+			core.NewWorkflowInstance("actName", ""), slog.Default(), noop.NewTracerProvider().Tracer("test"), clock.New()),
+	)
+
+	c := sync.NewCoroutine(ctx, func(ctx Context) error {
+		executeActivity[int](ctx, DefaultActivityOptions, 1, "actName", "foo", 1)
+		return nil
+	})
+
+	c.Execute()
+
+	require.NoError(t, c.Error())
+	require.True(t, c.Finished())
+}
