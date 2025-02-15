@@ -7,6 +7,7 @@ toolchain go1.23.2
 require (
 	github.com/go-errors/errors v1.4.2
 	github.com/go-sql-driver/mysql v1.7.0
+	github.com/gocql/gocql v0.0.0-20210515062232-b7ef815b4556
 	github.com/golang-migrate/migrate/v4 v4.16.2
 	github.com/golangci/golangci-lint v1.54.2
 	github.com/google/uuid v1.6.0
@@ -38,7 +39,9 @@ require (
 	github.com/curioswitch/go-reassign v0.2.0 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/firefart/nonamedreturns v1.0.4 // indirect
+	github.com/golang/snappy v0.0.4 // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.22.0 // indirect
+	github.com/hailocab/go-hostpool v0.0.0-20160125115350-e80d13ce29ed // indirect
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51 // indirect
 	github.com/kkHAIKE/contextcheck v1.1.4 // indirect
 	github.com/lufeee/execinquery v1.2.1 // indirect
@@ -65,6 +68,7 @@ require (
 	golang.org/x/exp/typeparams v0.0.0-20230307190834-24139beb5833 // indirect
 	google.golang.org/genproto v0.0.0-20230306155012-7f2fa6fef1f4 // indirect
 	google.golang.org/grpc v1.67.1 // indirect
+	gopkg.in/inf.v0 v0.9.1 // indirect
 	lukechampine.com/uint128 v1.2.0 // indirect
 	modernc.org/cc/v3 v3.40.0 // indirect
 	modernc.org/ccgo/v3 v3.16.13 // indirect

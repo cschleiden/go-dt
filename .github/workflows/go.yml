@@ -129,3 +129,46 @@ jobs:
         paths: |
           ${{ github.workspace }}/report.xml
       if: always()
+
+  test_cassandra:
+    runs-on: ubuntu-latest
+    needs: build
+
+    services:
+      scylla:
+        image: scylladb/scylla:latest
+        ports:
+          - 9042:9042
+        options: --entrypoint "/usr/bin/scylla --developer-mode 1"
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Go
+      uses: actions/setup-go@v3
+      with:
+        go-version: 1.21
+        check-latest: true
+        cache: true
+
+    - name: Wait for ScyllaDB to be ready
+      run: |
+        for i in {1..30}; do
+          if cqlsh -e "describe keyspaces"; then
+            exit 0
+          fi
+          sleep 1
+        done
+        exit 1
+
+    - name: Tests
+      run: |
+        go install github.com/jstemmer/go-junit-report/v2@latest
+        go test -timeout 120s -race -count 1 -v github.com/cschleiden/go-workflows/backend/cassandra 2>&1 | go-junit-report -set-exit-code -iocopy -out "${{ github.workspace }}/report.xml"
+
+    - name: Test Summary
+      uses: test-summary/action@v2
+      with:
+        paths: |
+          ${{ github.workspace }}/report.xml
+      if: always()

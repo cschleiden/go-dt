@@ -96,7 +96,27 @@ Instance specific keys:
 
 - `future-events` - `ZSET` - Events not yet visible like timer events
 
+## Cassandra
 
+```go
+func NewCassandraBackend(hosts []string, keyspace string, opts ...option)
+```
+
+Create a new Cassandra backend instance with `NewCassandraBackend`.
+
+### Options
+
+- `WithBackendOptions(opts ...backend.BackendOption)` - Apply generic backend options
+
+### Schema
+
+Main tables:
+
+- `instances` - Tracks workflow instances. Functions as instance queue joined with `pending_events`
+- `pending_events` - Pending events for workflow instances
+- `history` - History for workflow instances
+- `activities` - Queue of pending activities
+- `attributes` - Payloads of events
 
 ## Custom implementation
 
@@ -170,4 +190,3 @@ type Backend interface {
 	// Close closes any underlying resources
 	Close() error
 }
-```
